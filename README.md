@@ -35,6 +35,8 @@ cd ./benji-badger-bot
 ### Installing the Backend
 
 ```shell
+sudo apt install python3-pip
+sudo apt install python3-opencv
 pip install -r ./firmware/requirements.txt
 ```
 

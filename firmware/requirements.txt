@@ -1,3 +1,6 @@
 flask
 flask-cors
-opencv-python
+# opencv-python
+wiringpi
+pya20
+RPi.GPIO
