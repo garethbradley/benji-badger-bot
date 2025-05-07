@@ -25,6 +25,13 @@ We are exploring a tracked vehicle which will have onboard power. However, rathe
 
 The system relies on a python script running in the background (handles GPIO, connection status and camera enumeration/streaming). By default, this server runs on `127.0.0.1:8080`.
 
+### Clone the Repository
+
+```shell
+git clone https://github.com/garethbradley/benji-badger-bot.git
+cd ./benji-badger-bot
+```
+
 ### Installing the Backend
 
 ```shell
