@@ -131,7 +131,7 @@ if platform_name == "raspberry_pi":
     pwm_a.start(0)
     pwm_b.start(0)
     
-elif platform_name == "odroid" and "wiringpi" in str(GPIO.__module__):
+elif platform_name == "odroid": # and "wiringpi" in str(GPIO.__module__):
     # WiringPi setup for Odroid
     GPIO.wiringPiSetupGpio()  # Use GPIO numbering
     
@@ -152,43 +152,43 @@ elif platform_name == "odroid" and "wiringpi" in str(GPIO.__module__):
     GPIO.softPwmCreate(MOTOR_A_EN, 0, 100)
     GPIO.softPwmCreate(MOTOR_B_EN, 0, 100)
 
-elif platform_name == "odroid" and "pyA20" in str(GPIO.__module__):
-    # pyA20 setup for Odroid
-    # You may need to map BCM pins to Odroid pins
-    GPIO.init()
+# elif platform_name == "odroid" and "pyA20" in str(GPIO.__module__):
+#     # pyA20 setup for Odroid
+#     # You may need to map BCM pins to Odroid pins
+#     GPIO.init()
     
-    # Set up GPIO pins  
-    GPIO.setcfg(MOTOR_A_EN, GPIO.OUTPUT)
-    GPIO.setcfg(MOTOR_A_IN1, GPIO.OUTPUT)
-    GPIO.setcfg(MOTOR_A_IN2, GPIO.OUTPUT)
-    GPIO.setcfg(MOTOR_B_EN, GPIO.OUTPUT)
-    GPIO.setcfg(MOTOR_B_IN1, GPIO.OUTPUT)
-    GPIO.setcfg(MOTOR_B_IN2, GPIO.OUTPUT)
+#     # Set up GPIO pins  
+#     GPIO.setcfg(MOTOR_A_EN, GPIO.OUTPUT)
+#     GPIO.setcfg(MOTOR_A_IN1, GPIO.OUTPUT)
+#     GPIO.setcfg(MOTOR_A_IN2, GPIO.OUTPUT)
+#     GPIO.setcfg(MOTOR_B_EN, GPIO.OUTPUT)
+#     GPIO.setcfg(MOTOR_B_IN1, GPIO.OUTPUT)
+#     GPIO.setcfg(MOTOR_B_IN2, GPIO.OUTPUT)
 
-    # Create PWM wrapper classes to maintain compatible interface
-    class PyA20PWM:
-        def __init__(self, pin, freq):
-            self.pin = pin
+#     # Create PWM wrapper classes to maintain compatible interface
+#     class PyA20PWM:
+#         def __init__(self, pin, freq):
+#             self.pin = pin
             
-        def start(self, duty):
-            self.ChangeDutyCycle(duty)
+#         def start(self, duty):
+#             self.ChangeDutyCycle(duty)
             
-        def ChangeDutyCycle(self, duty):
-            # PyA20 doesn't have built-in PWM, simulating with rapid GPIO toggles
-            # In a real implementation, consider using hardware PWM or more efficient software PWM
-            if duty > 0:
-                GPIO.output(self.pin, GPIO.HIGH)
-            else:
-                GPIO.output(self.pin, GPIO.LOW)
+#         def ChangeDutyCycle(self, duty):
+#             # PyA20 doesn't have built-in PWM, simulating with rapid GPIO toggles
+#             # In a real implementation, consider using hardware PWM or more efficient software PWM
+#             if duty > 0:
+#                 GPIO.output(self.pin, GPIO.HIGH)
+#             else:
+#                 GPIO.output(self.pin, GPIO.LOW)
                 
-        def stop(self):
-            GPIO.output(self.pin, GPIO.LOW)
+#         def stop(self):
+#             GPIO.output(self.pin, GPIO.LOW)
             
-    pwm_a = PyA20PWM(MOTOR_A_EN, 1000)
-    pwm_b = PyA20PWM(MOTOR_B_EN, 1000) 
+#     pwm_a = PyA20PWM(MOTOR_A_EN, 1000)
+#     pwm_b = PyA20PWM(MOTOR_B_EN, 1000) 
     
-    pwm_a.start(0)
-    pwm_b.start(0)
+#     pwm_a.start(0)
+#     pwm_b.start(0)
 else:
     # Simulation or fallback mode
     if hasattr(GPIO, 'setmode'):
