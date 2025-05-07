@@ -16,3 +16,5 @@ To create a simple robot capable of remote control under dense ground.
 ## Design
 
 We are exploring a tracked vehicle which will have onboard power. However, rather than a wireless signal which may be prone to dropping, it will use fiber optics.
+
+![Functional Block Diagram](https://raw.githubusercontent.com/garethbradley/benji-badger-bot/refs/heads/main/docs/assets/functional_diagram.svg)
