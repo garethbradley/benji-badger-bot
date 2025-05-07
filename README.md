@@ -4,6 +4,8 @@
 
 This project came about after my brother's dog, Benji, went missing. After nearly 4 long days and nights searching for him (and increasingly coming to terms with the worst case scenario), he was retreived safe and sound from an inactive badger sett. The search was coordinated by a group of volunteers, known as K9 SARs. They've been wanting to invest in equipment to help them investigate burrows and setts that are known to be inactive.
 
+The current offerings on the market are either very expensive, or cheap wifi/bluetooth platforms that don't fulfil the design goals. We can do it better!
+
 ## Goal
 
 To create a simple robot capable of remote control under dense ground.
