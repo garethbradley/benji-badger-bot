@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1.0, user-scalable=no"
+        />
+        <title>Robot Control Interface</title>
+        <link rel="stylesheet" href="styles.css" />
+        <link rel="manifest" href="manifest.json" />
+        <meta name="theme-color" content="#000000" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta
+            name="apple-mobile-web-app-status-bar-style"
+            content="black-translucent"
+        />
+    </head>
+    <body>
+        <!-- <div id="settings-overlay" class="hidden">
+            <div id="settings-panel">
+                <h2>Settings</h2>
+                <div class="setting-group">
+                    <label for="camera-select">Camera Source:</label>
+                    <select id="camera-select">
+                        <option value="0">Default Camera</option>
+                        <option value="1">USB Camera</option>
+                    </select>
+                </div>
+                <div class="setting-group">
+                    <label for="gpio-address">Raspberry Pi Address:</label>
+                    <input
+                        type="text"
+                        id="gpio-address"
+                        placeholder="e.g., 192.168.1.100:8000"
+                    />
+                </div>
+                <div class="button-group">
+                    <button id="save-settings">Save</button>
+                    <button id="close-settings">Cancel</button>
+                </div>
+            </div>
+        </div> -->
+
+        <div id="connection-container" class="fullscreen-container">
+            <div class="connection-panel">
+                <h2>Robot Control</h2>
+                <div class="connection-status">
+                    <span
+                        id="connection-status-settings"
+                        class="status-indicator disconnected"
+                        >Disconnected</span
+                    >
+                </div>
+
+                <div class="connection-form">
+                    <div class="form-group">
+                        <label for="gpio-address">Server Address:</label>
+                        <input
+                            type="text"
+                            id="gpio-address"
+                            placeholder="127.0.0.1:8080"
+                        />
+                    </div>
+
+                    <button id="server-connect-btn" class="primary-button">
+                        Connect to Server
+                    </button>
+
+                    <div
+                        class="form-group camera-select-container"
+                        style="display: none"
+                    >
+                        <label for="camera-select">Select Camera:</label>
+                        <div class="select-with-refresh">
+                            <select id="camera-select"></select>
+                            <button
+                                id="refresh-cameras"
+                                type="button"
+                                class="icon-button"
+                                title="Refresh camera list"
+                            >
+                                <span class="material-icons">refresh</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <button
+                        id="camera-connect-btn"
+                        class="primary-button"
+                        style="display: none"
+                    >
+                        Connect to Camera
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div
+            id="control-container"
+            class="fullscreen-container"
+            style="display: none"
+        >
+            <div id="app">
+                <div id="camera-container">
+                    <img id="camera-feed" alt="Camera Feed" />
+                    <div id="no-camera">Please configure server settings</div>
+                </div>
+
+                <div
+                    id="connection-status-main"
+                    class="status-indicator disconnected"
+                >
+                    Disconnected
+                </div>
+
+                <div id="controls">
+                    <div class="joystick-container left">
+                        <div class="joystick-label">Forward/Reverse</div>
+                        <div class="joystick-base" id="joystick-left">
+                            <div class="joystick-knob"></div>
+                        </div>
+                        <div class="joystick-value" id="left-value">0</div>
+                    </div>
+
+                    <div class="joystick-container right">
+                        <div class="joystick-label">Left/Right</div>
+                        <div class="joystick-base" id="joystick-right">
+                            <div class="joystick-knob"></div>
+                        </div>
+                        <div class="joystick-value" id="right-value">0</div>
+                    </div>
+                </div>
+
+                <!-- <button id="settings-btn" aria-label="Settings">⚙️</button> -->
+
+                <div id="orientation-warning">
+                    <div class="warning-content">
+                        <div class="warning-icon">📱</div>
+                        <p>Please rotate your device to landscape mode</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script src="app.js"></script>
+    </body>
+</html>
