@@ -25,23 +25,23 @@ The system relies on a python script running in the background (handles GPIO, co
 
 ### Installing the Backend
 
-```shell
-> pip install -r ./firmware/requirements.txt
+```console
+pip install -r ./firmware/requirements.txt
 ```
 
 _note: this uses opencv which can take several hours to build on a RaspberryPI (over 10 hours in some reported cases)._
 
 ### Running the Backend
 
-```shell
-> python ./firmware/gpio-server.py
+```console
+python ./firmware/gpio-server.py
 ```
 
 ### Running the Frontend
 
 The frontend is a simple single page application with no dependencies. It can be run with any webserver, but for the purposes of testing, it can be convenient to use the built in python server.
 
-```shell
-> cd ./firmware
-> python -m http.server
+```console
+cd ./firmware
+python -m http.server
 ```
