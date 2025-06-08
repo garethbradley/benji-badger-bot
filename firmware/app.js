@@ -621,10 +621,10 @@ document.addEventListener('DOMContentLoaded', () => {
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({
-                forwardReverse: leftJoystickValue,
-                leftRight: rightJoystickValue
-            }),
+            body: `{
+                "forwardReverse": ${leftJoystickValue},
+                "leftRight": ${rightJoystickValue}
+            }`,
             // Short timeout to avoid blocking UI
             signal: AbortSignal.timeout(1000)
         }).catch(error => {
