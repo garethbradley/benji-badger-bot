@@ -137,6 +137,7 @@ platform_name = platform["name"]
 
 # Configure GPIO based on platform
 if platform_name == "raspberry_pi":
+    print("Setting up GPIO for RaspberryPI hardware")
     GPIO.setmode(GPIO.BCM)
     
     # Set up GPIO pins
@@ -156,6 +157,7 @@ if platform_name == "raspberry_pi":
     pwm_b.start(0)
     
 elif platform_name == "odroid":
+    print("Setting up GPIO for Odroid hardware")
     # Motor pin definitions (BCM numbering for ODROID by default)
     # Motor A (Left)
     MOTOR_A_EN = ODROID_MOTOR_A_EN  # Enable pin
@@ -225,6 +227,7 @@ elif platform_name == "odroid":
 #     pwm_a.start(0)
 #     pwm_b.start(0)
 else:
+    print("Setting up GPIO for fallback simulation mode")
     # Simulation or fallback mode
     if hasattr(GPIO, 'setmode'):
         GPIO.setmode(GPIO.BCM)
