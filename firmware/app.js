@@ -34,7 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Load settings from localStorage
     const settings = {
         cameraId: localStorage.getItem('cameraId') || '0',
-        gpioAddress: localStorage.getItem('gpioAddress') || '127.0.0.1:8080'
+        gpioAddress: localStorage.getItem('gpioAddress') || '192.168.0.208:8080'
     };
 
     // Initialize settings inputs
@@ -204,7 +204,7 @@ document.addEventListener('DOMContentLoaded', () => {
             method: 'GET',
             headers: { 'Accept': 'application/json' },
             // Short timeout to avoid long waits
-            signal: AbortSignal.timeout(3000)
+            signal: AbortSignal.timeout(5000)
         })
             .then(response => {
                 if (response.ok) {

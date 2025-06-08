@@ -10,16 +10,40 @@ from flask_cors import CORS
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
 
-# Motor pin definitions (BCM numbering for Raspberry Pi by default)
+# Motor pin definitions (BCM numbering for RaspberryPi by default)
 # Motor A (Left)
-MOTOR_A_EN = 17  # Enable pin
-MOTOR_A_IN1 = 27  # Direction pin 1
-MOTOR_A_IN2 = 22  # Direction pin 2
+RPI_MOTOR_A_EN = 17  # Enable pin
+RPI_MOTOR_A_IN1 = 27  # Direction pin 1
+RPI_MOTOR_A_IN2 = 22  # Direction pin 2
 
 # Motor B (Right)
-MOTOR_B_EN = 18  # Enable pin
-MOTOR_B_IN1 = 23  # Direction pin 1
-MOTOR_B_IN2 = 24  # Direction pin 2
+RPI_MOTOR_B_EN = 18  # Enable pin
+RPI_MOTOR_B_IN1 = 23  # Direction pin 1
+RPI_MOTOR_B_IN2 = 24  # Direction pin 2
+
+
+# Motor pin definitions (BCM numbering for ODROID by default)
+# Motor A (Left)
+ODROID_MOTOR_A_EN = 249  # Enable pin
+ODROID_MOTOR_A_IN1 = 27  # Direction pin 1
+ODROID_MOTOR_A_IN2 = 22  # Direction pin 2
+
+# Motor B (Right)
+ODROID_MOTOR_B_EN = 18  # Enable pin
+ODROID_MOTOR_B_IN1 = 23  # Direction pin 1
+ODROID_MOTOR_B_IN2 = 24  # Direction pin 2
+
+
+# Motor pin definitions (BCM numbering for Raspberry Pi by default)
+# Motor A (Left)
+MOTOR_A_EN = RPI_MOTOR_A_EN  # Enable pin
+MOTOR_A_IN1 = RPI_MOTOR_A_IN1  # Direction pin 1
+MOTOR_A_IN2 = RPI_MOTOR_A_IN2  # Direction pin 2
+
+# Motor B (Right)
+MOTOR_B_EN = RPI_MOTOR_B_EN  # Enable pin
+MOTOR_B_IN1 = RPI_MOTOR_B_IN1  # Direction pin 1
+MOTOR_B_IN2 = RPI_MOTOR_B_IN2  # Direction pin 2
 
 # Detect platform and initialize GPIO library accordingly
 def detect_platform():
@@ -132,6 +156,18 @@ if platform_name == "raspberry_pi":
     pwm_b.start(0)
     
 elif platform_name == "odroid": # and "wiringpi" in str(GPIO.__module__):
+    # Motor pin definitions (BCM numbering for Raspberry Pi by default)
+    # Motor A (Left)
+    MOTOR_A_EN = ODROID_MOTOR_A_EN  # Enable pin
+    MOTOR_A_IN1 = ODROID_MOTOR_A_IN1  # Direction pin 1
+    MOTOR_A_IN2 = ODROID_MOTOR_A_IN2  # Direction pin 2
+
+    # Motor B (Right)
+    MOTOR_B_EN = ODROID_MOTOR_B_EN  # Enable pin
+    MOTOR_B_IN1 = ODROID_MOTOR_B_IN1  # Direction pin 1
+    MOTOR_B_IN2 = ODROID_MOTOR_B_IN2  # Direction pin 2
+
+
     # WiringPi setup for Odroid
     GPIO.wiringPiSetupGpio()  # Use GPIO numbering
     
