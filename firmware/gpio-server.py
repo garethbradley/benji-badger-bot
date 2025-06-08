@@ -605,13 +605,13 @@ if __name__ == '__main__':
                 pwm_b.stop()
             if hasattr(GPIO, 'cleanup'):
                 GPIO.cleanup()
-        elif platform_name == "odroid" and "wiringpi" in str(GPIO.__module__):
+        elif platform_name == "odroid" # and "wiringpi" in str(GPIO.__module__):
             # WiringPi cleanup for Odroid
             pass  # WiringPi often doesn't need explicit cleanup
-        elif platform_name == "odroid" and "pyA20" in str(GPIO.__module__):
-            # pyA20 cleanup for Odroid
-            pwm_a.stop()
-            pwm_b.stop()
+        # elif platform_name == "odroid" and "pyA20" in str(GPIO.__module__):
+        #     # pyA20 cleanup for Odroid
+        #     pwm_a.stop()
+        #     pwm_b.stop()
             
         # Release cameras
         for camera_id in cameras:
