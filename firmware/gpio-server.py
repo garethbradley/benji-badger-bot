@@ -541,11 +541,11 @@ def control_motors():
         if left_motor > 0:  # Forward
             gpio_output(MOTOR_A_IN1, GPIO.HIGH)
             gpio_output(MOTOR_A_IN2, GPIO.LOW)
-            pwm_set_duty(pwm_a, MOTOR_A_EN, abs(left_motor) / 255 * 100)
+            pwm_set_duty(pwm_a, MOTOR_A_EN, int(abs(left_motor) / 255 * 100))
         elif left_motor < 0:  # Reverse
             gpio_output(MOTOR_A_IN1, GPIO.LOW)
             gpio_output(MOTOR_A_IN2, GPIO.HIGH)
-            pwm_set_duty(pwm_a, MOTOR_A_EN, abs(left_motor) / 255 * 100)
+            pwm_set_duty(pwm_a, MOTOR_A_EN, int(abs(left_motor) / 255 * 100))
         else:  # Stop
             gpio_output(MOTOR_A_IN1, GPIO.LOW)
             gpio_output(MOTOR_A_IN2, GPIO.LOW)
@@ -555,11 +555,11 @@ def control_motors():
         if right_motor > 0:  # Forward
             gpio_output(MOTOR_B_IN1, GPIO.HIGH)
             gpio_output(MOTOR_B_IN2, GPIO.LOW)
-            pwm_set_duty(pwm_b, MOTOR_B_EN, abs(right_motor) / 255 * 100)
+            pwm_set_duty(pwm_b, MOTOR_B_EN, int(abs(right_motor) / 255 * 100))
         elif right_motor < 0:  # Reverse
             gpio_output(MOTOR_B_IN1, GPIO.LOW)
             gpio_output(MOTOR_B_IN2, GPIO.HIGH)
-            pwm_set_duty(pwm_b, MOTOR_B_EN, abs(right_motor) / 255 * 100)
+            pwm_set_duty(pwm_b, MOTOR_B_EN, int(abs(right_motor) / 255 * 100))
         else:  # Stop
             gpio_output(MOTOR_B_IN1, GPIO.LOW)
             gpio_output(MOTOR_B_IN2, GPIO.LOW)
