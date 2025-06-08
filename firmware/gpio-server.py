@@ -24,7 +24,7 @@ RPI_MOTOR_B_IN2 = 24  # Direction pin 2
 
 # Motor pin definitions (BCM numbering for ODROID by default)
 # Motor A (Left)
-ODROID_MOTOR_A_EN = 7  # Enable pin
+ODROID_MOTOR_A_EN = 0  # Enable pin
 ODROID_MOTOR_A_IN1 = 27  # Direction pin 1
 ODROID_MOTOR_A_IN2 = 22  # Direction pin 2
 
