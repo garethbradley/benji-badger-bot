@@ -24,7 +24,7 @@ RPI_MOTOR_B_IN2 = 24  # Direction pin 2
 
 # Motor pin definitions (BCM numbering for ODROID by default)
 # Motor A (Left)
-ODROID_MOTOR_A_EN = 249  # Enable pin
+ODROID_MOTOR_A_EN = 7  # Enable pin
 ODROID_MOTOR_A_IN1 = 27  # Direction pin 1
 ODROID_MOTOR_A_IN2 = 22  # Direction pin 2
 
@@ -155,8 +155,8 @@ if platform_name == "raspberry_pi":
     pwm_a.start(0)
     pwm_b.start(0)
     
-elif platform_name == "odroid": # and "wiringpi" in str(GPIO.__module__):
-    # Motor pin definitions (BCM numbering for Raspberry Pi by default)
+elif platform_name == "odroid":
+    # Motor pin definitions (BCM numbering for ODROID by default)
     # Motor A (Left)
     MOTOR_A_EN = ODROID_MOTOR_A_EN  # Enable pin
     MOTOR_A_IN1 = ODROID_MOTOR_A_IN1  # Direction pin 1
@@ -166,7 +166,6 @@ elif platform_name == "odroid": # and "wiringpi" in str(GPIO.__module__):
     MOTOR_B_EN = ODROID_MOTOR_B_EN  # Enable pin
     MOTOR_B_IN1 = ODROID_MOTOR_B_IN1  # Direction pin 1
     MOTOR_B_IN2 = ODROID_MOTOR_B_IN2  # Direction pin 2
-
 
     # WiringPi setup for Odroid
     GPIO.wiringPiSetupGpio()  # Use GPIO numbering
@@ -253,10 +252,8 @@ def gpio_output(pin, value):
     """Abstract GPIO output function that works across platforms"""
     if platform_name == "raspberry_pi" or platform_name == "simulation":
         GPIO.output(pin, value)
-    elif platform_name == "odroid" and "wiringpi" in str(GPIO.__module__):
+    elif platform_name == "odroid":
         GPIO.digitalWrite(pin, value)
-    elif platform_name == "odroid" and "pyA20" in str(GPIO.__module__):
-        GPIO.output(pin, GPIO.HIGH if value else GPIO.LOW)
     else:
         print(f"Setting pin {pin} to {value}")
 
@@ -264,10 +261,8 @@ def pwm_set_duty(pwm_obj, pin, duty):
     """Abstract PWM duty cycle function that works across platforms"""
     if platform_name == "raspberry_pi" or platform_name == "simulation":
         pwm_obj.ChangeDutyCycle(duty)
-    elif platform_name == "odroid" and "wiringpi" in str(GPIO.__module__):
+    elif platform_name == "odroid":
         GPIO.softPwmWrite(pin, duty)
-    elif platform_name == "odroid" and "pyA20" in str(GPIO.__module__):
-        pwm_obj.ChangeDutyCycle(duty)
     else:
         print(f"Setting PWM on pin {pin} to duty {duty}")
 
