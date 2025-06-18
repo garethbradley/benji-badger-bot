@@ -663,6 +663,8 @@ document.addEventListener('DOMContentLoaded', () => {
             localStorage.setItem('cameraId', settings.cameraId);
             localStorage.setItem('gpioAddress', settings.gpioAddress);
 
+            console.log('Settings saved:', settings);
+
             // Close settings panel
             settingsOverlay.classList.add('hidden');
 

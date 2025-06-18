@@ -56,3 +56,47 @@ The frontend is a simple single page application with no dependencies. It can be
 cd ./firmware
 python -m http.server
 ```
+
+### Automating the Services
+
+Assuming that's all running, we need to set the services to auto start.
+
+Copy the `gpio-server.service` script to `/etc/systemd/system`
+
+```shell
+sudo cp /home/robot/benji-badger-bot/config_files/etc/systemd/system/gpio-server.service /etc/systemd/system/
+sudo systemctl enable gpio-server
+sudo systemctl daemon-reload
+```
+
+Next we need to set up the web server. Running the following command will probably demonstrate that www-data doesn't have access to the source:
+
+```shell
+sudo -u www-data namei /home/robot/benji-badger-bot/firmware/index.html
+```
+
+We can fix that:
+
+```shell
+sudo setfacl -m www-data:rx /home/robot/
+sudo -u www-data namei /home/robot/benji-badger-bot/firmware/index.html
+
+    f: /home/robot/benji-badger-bot/firmware/index.html
+    d /
+    d home
+    d robot
+    d benji-badger-bot
+    d firmware
+    - index.html
+```
+
+Next, we need to copy the nginx webserver config over:
+
+```shell
+sudo cp /home/robot/benji-badger-bot/config_files/etc/nginx/sites-available/benji-badger-bot /etc/nginx/sites-available/
+sudo rm -f /etc/nginx/sites-enabled/*
+sudo ln -s /etc/nginx/sites-available/benji-badger-bot /etc/nginx/sites-enabled/
+sudo service nginx reload
+```
+
+That's it!

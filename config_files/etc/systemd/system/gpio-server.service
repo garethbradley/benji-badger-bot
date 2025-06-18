@@ -1,0 +1,15 @@
+[Unit]
+Description=Benji Badger Bot GPIO Server
+After=network.target
+
+[Service]
+Type=simple
+RemainAfterExit=yes
+WorkingDirectory=/home/robot/benji-badger-bot/
+ExecStart=/usr/bin/python3 ./firmware/gpio-server.py
+#ExecStop=/usr/bin/docker compose down
+TimeoutStartSec=0
+Environment=PYTHONUNBUFFERED=1
+
+[Install]
+WantedBy=multi-user.target
