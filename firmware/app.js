@@ -34,7 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Load settings from localStorage
     const settings = {
         cameraId: localStorage.getItem('cameraId') || '0',
-        gpioAddress: localStorage.getItem('gpioAddress') || '192.168.0.208:8080'
+        gpioAddress: localStorage.getItem('gpioAddress') || (window.location.host + ':8080')
     };
 
     // Initialize settings inputs
