@@ -573,7 +573,7 @@ document.addEventListener('DOMContentLoaded', () => {
         settingsBtn.addEventListener('click', () => {
             settingsOverlay.classList.remove('hidden');
             // Refresh camera list when opening settings
-            fetchAvailableCameras();
+            // fetchAvailableCameras();
             // Ensure dialog reflects current selection
             if (cameraSelectDialog) {
                 cameraSelectDialog.value = settings.cameraId || '';
