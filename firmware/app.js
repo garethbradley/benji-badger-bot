@@ -14,7 +14,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const gpioAddressInput = document.getElementById('gpio-address');
     const connectionStatuses = document.getElementsByClassName('status-indicator');
     const refreshCamerasBtn = document.getElementById('refresh-cameras');
-    // const connectBtn = document.getElementById('connect-btn');
+    // Add dialog-specific elements
+    const cameraSelectDialog = document.getElementById('camera-select-dialog');
+    const refreshCamerasBtnDialog = document.getElementById('refresh-cameras-dialog');
+    const saveSettingsDialogBtn = document.getElementById('save-settings');
 
     // Add connection/control container elements
     const controlContainer = document.getElementById('control-container') || document.querySelector('.control-container');
@@ -48,112 +51,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const joystickSize = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--joystick-size'));
     const knobSize = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--knob-size'));
     const maxDistance = (joystickSize - knobSize) / 2;
-
-    // Create connection container if it doesn't exist
-    // function createConnectionContainer() {
-    //     const container = document.createElement('div');
-    //     container.id = 'connection-container';
-    //     container.className = 'fullscreen-container';
-
-    //     container.innerHTML = `
-    //         <div class="connection-panel">
-    //             <h2>Robot Control</h2>
-    //             <div class="connection-form">
-    //                 <div class="form-group">
-    //                     <label for="gpio-address">Server Address:</label>
-    //                     <input type="text" id="gpio-address-connect" value="${settings.gpioAddress}">
-    //                 </div>
-    //                 <button id="connect-btn" class="primary-button">Connect</button>
-    //                 <div class="connection-status">
-    //                     <span class="status-label">Status:</span>
-    //                     <span id="connection-status-text" class="status-indicator disconnected">Disconnected</span>
-    //                 </div>
-    //             </div>
-    //         </div>
-    //     `;
-
-    //     document.body.appendChild(container);
-
-    //     // Set up event listener for the connect button
-    //     container.querySelector('#connect-btn').addEventListener('click', () => {
-    //         const addressInput = container.querySelector('#gpio-address-connect');
-    //         settings.gpioAddress = addressInput.value;
-    //         localStorage.setItem('gpioAddress', settings.gpioAddress);
-    //         gpioAddressInput.value = settings.gpioAddress;
-    //         checkServerConnection();
-    //     });
-
-    //     // Add some basic styles
-    //     const style = document.createElement('style');
-    //     style.textContent = `
-    //         .fullscreen-container {
-    //             position: fixed;
-    //             top: 0;
-    //             left: 0;
-    //             right: 0;
-    //             bottom: 0;
-    //             background: rgba(0, 0, 0, 0.8);
-    //             display: flex;
-    //             align-items: center;
-    //             justify-content: center;
-    //             z-index: 1000;
-    //         }
-    //         .connection-panel {
-    //             background: white;
-    //             border-radius: 8px;
-    //             padding: 20px;
-    //             width: 80%;
-    //             max-width: 400px;
-    //         }
-    //         .connection-form {
-    //             display: flex;
-    //             flex-direction: column;
-    //             gap: 15px;
-    //         }
-    //         .form-group {
-    //             display: flex;
-    //             flex-direction: column;
-    //             gap: 5px;
-    //         }
-    //         .connection-status {
-    //             display: flex;
-    //             align-items: center;
-    //             gap: 10px;
-    //         }
-    //         .primary-button {
-    //             padding: 10px;
-    //             background: #4CAF50;
-    //             color: white;
-    //             border: none;
-    //             border-radius: 4px;
-    //             cursor: pointer;
-    //             font-size: 16px;
-    //         }
-    //         .primary-button:hover {
-    //             background: #388E3C;
-    //         }
-    //         .status-indicator {
-    //             padding: 5px 10px;
-    //             border-radius: 4px;
-    //             font-weight: bold;
-    //         }
-    //         .status-indicator.connected {
-    //             background-color: #4CAF50;
-    //             color: white;
-    //         }
-    //         .status-indicator.connecting {
-    //             background-color: #FFC107;
-    //             color: black;
-    //         }
-    //         .status-indicator.disconnected {
-    //             background-color: #F44336;
-    //             color: white;
-    //         }
-    //     `;
-    //     document.head.appendChild(style);
-
-    //     return container;
-    // }
 
     // Update UI based on connection state
     function updateUIForConnectionState() {
@@ -271,7 +168,7 @@ document.addEventListener('DOMContentLoaded', () => {
         fetch(`http://${settings.gpioAddress}/cameras`, {
             method: 'GET',
             headers: { 'Accept': 'application/json' },
-            signal: AbortSignal.timeout(3000)
+            signal: AbortSignal.timeout(5000)
         })
             .then(response => {
                 if (response.ok) {
@@ -281,7 +178,8 @@ document.addEventListener('DOMContentLoaded', () => {
             })
             .then(data => {
                 // Clear existing options
-                cameraSelect.innerHTML = '';
+                if (cameraSelect) cameraSelect.innerHTML = '';
+                if (cameraSelectDialog) cameraSelectDialog.innerHTML = '';
 
                 // Check if we got camera data
                 if (data.status === 'success' && data.cameras) {
@@ -293,15 +191,19 @@ document.addEventListener('DOMContentLoaded', () => {
                         const isAvailable = cameraInfo.available;
                         const cameraName = cameraInfo.name || `Camera ${camId}`;
 
-                        // Skip unavailable cameras
                         if (isAvailable) {
-                            const option = document.createElement('option');
-                            option.value = camId;
-
-                            // Format the camera name
-                            option.text = cameraName;
-
-                            cameraSelect.appendChild(option);
+                            if (cameraSelect) {
+                                const option = document.createElement('option');
+                                option.value = camId;
+                                option.text = cameraName;
+                                cameraSelect.appendChild(option);
+                            }
+                            if (cameraSelectDialog) {
+                                const optionDlg = document.createElement('option');
+                                optionDlg.value = camId;
+                                optionDlg.text = cameraName;
+                                cameraSelectDialog.appendChild(optionDlg);
+                            }
                         }
 
                         camerasFound = camerasFound || isAvailable;
@@ -312,20 +214,32 @@ document.addEventListener('DOMContentLoaded', () => {
                         const noOption = document.createElement('option');
                         noOption.text = 'No cameras detected';
                         noOption.disabled = true;
-                        cameraSelect.appendChild(noOption);
+                        if (cameraSelect) cameraSelect.appendChild(noOption.cloneNode(true));
+                        if (cameraSelectDialog) cameraSelectDialog.appendChild(noOption.cloneNode(true));
                         showCameraError('No cameras available');
                     } else {
                         // Try to select the previously saved camera if available
-                        if (settings.cameraId && selectCameraIfAvailable(settings.cameraId)) {
-                            // If successful, start the camera stream
+                        if (settings.cameraId) {
+                            if (cameraSelect) selectCameraIfAvailable(settings.cameraId);
+                            if (cameraSelectDialog) {
+                                // mirror selection in dialog
+                                for (let i = 0; i < cameraSelectDialog.options.length; i++) {
+                                    if (cameraSelectDialog.options[i].value === settings.cameraId && !cameraSelectDialog.options[i].disabled) {
+                                        cameraSelectDialog.selectedIndex = i;
+                                        break;
+                                    }
+                                }
+                            }
+                            // Start the camera stream if we are not already connected
                             startCameraStream();
-                        } else {
+                        } else if (cameraSelect && cameraSelect.options.length) {
                             // Otherwise select the first available camera
                             for (let i = 0; i < cameraSelect.options.length; i++) {
                                 if (!cameraSelect.options[i].disabled) {
                                     cameraSelect.selectedIndex = i;
                                     settings.cameraId = cameraSelect.options[i].value;
                                     localStorage.setItem('cameraId', settings.cameraId);
+                                    if (cameraSelectDialog) cameraSelectDialog.value = settings.cameraId;
                                     startCameraStream();
                                     break;
                                 }
@@ -335,12 +249,26 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else {
                     // Fall back to default options if data format is unexpected
                     populateFallbackCameraOptions();
+                    if (cameraSelectDialog) {
+                        cameraSelectDialog.innerHTML = '';
+                        const noOption = document.createElement('option');
+                        noOption.text = 'No cameras available';
+                        noOption.disabled = true;
+                        cameraSelectDialog.appendChild(noOption);
+                    }
                     showCameraError('Failed to get camera list');
                 }
             })
             .catch(error => {
                 console.error('Error fetching cameras:', error);
                 populateFallbackCameraOptions();
+                if (cameraSelectDialog) {
+                    cameraSelectDialog.innerHTML = '';
+                    const noOption = document.createElement('option');
+                    noOption.text = 'No cameras available';
+                    noOption.disabled = true;
+                    cameraSelectDialog.appendChild(noOption);
+                }
                 showCameraError('Error accessing cameras');
             });
     }
@@ -644,6 +572,12 @@ document.addEventListener('DOMContentLoaded', () => {
     if (settingsBtn) {
         settingsBtn.addEventListener('click', () => {
             settingsOverlay.classList.remove('hidden');
+            // Refresh camera list when opening settings
+            fetchAvailableCameras();
+            // Ensure dialog reflects current selection
+            if (cameraSelectDialog) {
+                cameraSelectDialog.value = settings.cameraId || '';
+            }
         });
     }
 
@@ -673,12 +607,35 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // Save settings from dialog
+    if (saveSettingsDialogBtn) {
+        saveSettingsDialogBtn.addEventListener('click', () => {
+            if (cameraSelectDialog && cameraSelectDialog.value) {
+                settings.cameraId = cameraSelectDialog.value;
+                localStorage.setItem('cameraId', settings.cameraId);
+                // Sync the hidden/main select for consistency
+                if (cameraSelect) {
+                    selectCameraIfAvailable(settings.cameraId);
+                }
+                startCameraStream();
+            }
+            settingsOverlay.classList.add('hidden');
+        });
+    }
+
     // Camera selection change event
     cameraSelect.addEventListener('change', () => {
         settings.cameraId = cameraSelect.value;
         localStorage.setItem('cameraId', settings.cameraId);
         startCameraStream();
     });
+
+    // Refresh cameras from dialog
+    if (refreshCamerasBtnDialog) {
+        refreshCamerasBtnDialog.addEventListener('click', () => {
+            fetchAvailableCameras();
+        });
+    }
 
     // Add camera refresh button event listener
     if (refreshCamerasBtn) {

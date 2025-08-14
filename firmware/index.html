@@ -17,30 +17,22 @@
         />
     </head>
     <body>
-        <!-- <div id="settings-overlay" class="hidden">
+        <div id="settings-overlay" class="hidden">
             <div id="settings-panel">
                 <h2>Settings</h2>
                 <div class="setting-group">
-                    <label for="camera-select">Camera Source:</label>
-                    <select id="camera-select">
-                        <option value="0">Default Camera</option>
-                        <option value="1">USB Camera</option>
-                    </select>
-                </div>
-                <div class="setting-group">
-                    <label for="gpio-address">Raspberry Pi Address:</label>
-                    <input
-                        type="text"
-                        id="gpio-address"
-                        placeholder="e.g., 192.168.1.100:8000"
-                    />
+                    <label for="camera-select-dialog">Camera Source:</label>
+                    <div class="select-with-refresh">
+                        <select id="camera-select-dialog"></select>
+                        <button id="refresh-cameras-dialog" type="button" class="icon-button" title="Refresh camera list">↻</button>
+                    </div>
                 </div>
                 <div class="button-group">
                     <button id="save-settings">Save</button>
                     <button id="close-settings">Cancel</button>
                 </div>
             </div>
-        </div> -->
+        </div>
 
         <div id="connection-container" class="fullscreen-container">
             <div class="connection-panel">
@@ -132,7 +124,7 @@
                     </div>
                 </div>
 
-                <!-- <button id="settings-btn" aria-label="Settings">⚙️</button> -->
+                <button id="settings-btn" aria-label="Settings">⚙️</button>
 
                 <div id="orientation-warning">
                     <div class="warning-content">
