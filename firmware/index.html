@@ -17,22 +17,6 @@
         />
     </head>
     <body>
-        <div id="settings-overlay" class="hidden">
-            <div id="settings-panel">
-                <h2>Settings</h2>
-                <div class="setting-group">
-                    <label for="camera-select-dialog">Camera Source:</label>
-                    <div class="select-with-refresh">
-                        <select id="camera-select-dialog"></select>
-                        <button id="refresh-cameras-dialog" type="button" class="icon-button" title="Refresh camera list">↻</button>
-                    </div>
-                </div>
-                <div class="button-group">
-                    <button id="save-settings">Save</button>
-                    <button id="close-settings">Cancel</button>
-                </div>
-            </div>
-        </div>
 
         <div id="connection-container" class="fullscreen-container">
             <div class="connection-panel">
@@ -131,6 +115,23 @@
                     <div class="warning-content">
                         <div class="warning-icon">📱</div>
                         <p>Please rotate your device to landscape mode</p>
+                    </div>
+                </div>
+
+                <div id="settings-overlay" class="hidden">
+                    <div id="settings-panel">
+                        <h2>Settings</h2>
+                        <div class="setting-group">
+                            <label for="camera-select-dialog">Camera Source:</label>
+                            <div class="select-with-refresh">
+                                <select id="camera-select-dialog"></select>
+                                <button id="refresh-cameras-dialog" type="button" class="icon-button" title="Refresh camera list">↻</button>
+                            </div>
+                        </div>
+                        <div class="button-group">
+                            <button id="save-settings">Save</button>
+                            <button id="close-settings">Cancel</button>
+                        </div>
                     </div>
                 </div>
             </div>
