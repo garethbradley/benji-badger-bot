@@ -77,6 +77,13 @@
             class="fullscreen-container"
             style="display: none"
         >
+            <!-- Lights toggle -->
+            <div class="lights-control">
+                <button id="lights-toggle" class="lights-btn off" aria-pressed="false" title="Toggle lights">
+                    🔦 Lights Off
+                </button>
+            </div>
+
             <div id="app">
                 <div id="camera-container">
                     <img id="camera-feed" alt="Camera Feed" />
@@ -110,14 +117,6 @@
 
                 <!-- Settings Dialog Button -->
                 <button id="settings-btn" aria-label="Settings">⚙️</button>
-
-                <div id="control-container" class="control-container">
-                    <div class="lights-control">
-                        <button id="lights-toggle" class="lights-btn off" aria-pressed="false" title="Toggle lights">
-                            🔦 Lights Off
-                        </button>
-                    </div>
-                </div>
 
                 <div id="orientation-warning">
                     <div class="warning-content">
