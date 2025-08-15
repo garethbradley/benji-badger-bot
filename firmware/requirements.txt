@@ -4,3 +4,4 @@ flask-cors
 wiringpi
 pya20
 RPi.GPIO
+rpi_ws281x

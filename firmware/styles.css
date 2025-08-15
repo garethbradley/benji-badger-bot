@@ -417,3 +417,13 @@ html, body {
     background-color: #95a5a6;
     cursor: not-allowed;
   }
+
+  /* Lights toggle styles */
+  .lights-control { display: flex; justify-content: center; margin: 12px 0; }
+  .lights-btn {
+      appearance: none; border: none; border-radius: 999px; padding: 10px 16px;
+      font-size: 16px; cursor: pointer; transition: background-color .2s, color .2s, opacity .2s;
+  }
+  .lights-btn.off { background: #2f2f2f; color: #fff; }
+  .lights-btn.on { background: #ffd54f; color: #1a1a1a; box-shadow: 0 0 12px rgba(255, 213, 79, .6) inset; }
+  .lights-btn:disabled { opacity: .5; cursor: not-allowed; }

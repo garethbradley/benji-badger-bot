@@ -7,6 +7,15 @@ import os
 import sys
 from flask_cors import CORS
 
+# NeoPixel (WS281x) support
+try:
+    from rpi_ws281x import PixelStrip, Color  # Hardware control on Raspberry Pi
+except Exception:
+    PixelStrip = None
+    def Color(r, g, b):
+        return (r, g, b)  # Fallback tuple for simulation
+
+
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
 
@@ -44,6 +53,79 @@ MOTOR_A_IN2 = RPI_MOTOR_A_IN2  # Direction pin 2
 MOTOR_B_EN = RPI_MOTOR_B_EN  # Enable pin
 MOTOR_B_IN1 = RPI_MOTOR_B_IN1  # Direction pin 1
 MOTOR_B_IN2 = RPI_MOTOR_B_IN2  # Direction pin 2
+
+
+# -------------------- Lights (NeoPixel) setup --------------------
+LED_COUNT = 4         # 4 neopixels
+LED_PIN = 12          # BCM 12 (PWM0)
+LED_FREQ_HZ = 800000  # 800kHz
+LED_DMA = 10
+LED_BRIGHTNESS = 64   # 0-255
+LED_INVERT = False
+LED_CHANNEL = 0       # PWM0 channel for GPIO 12
+
+strip = None
+lights_on = False
+_lights_lock = threading.Lock()
+
+def _strip_show():
+    try:
+        if strip:
+            strip.show()
+    except Exception as e:
+        print(f"NeoPixel show error: {e}")
+
+def _strip_fill(color):
+    if not strip:
+        return
+    try:
+        # PixelStrip API
+        n = strip.numPixels() if hasattr(strip, 'numPixels') else LED_COUNT
+        for i in range(n):
+            strip.setPixelColor(i, color)
+        _strip_show()
+    except Exception as e:
+        print(f"NeoPixel fill error: {e}")
+
+def init_lights():
+    global strip, lights_on
+    if platform_name == "raspberry_pi" and PixelStrip is not None:
+        try:
+            strip = PixelStrip(LED_COUNT, LED_PIN, LED_FREQ_HZ, LED_DMA, LED_INVERT, LED_BRIGHTNESS, LED_CHANNEL)
+            strip.begin()
+            lights_on = False
+            _strip_fill(Color(0, 0, 0))
+            print(f"NeoPixel strip initialized on GPIO {LED_PIN} with {LED_COUNT} LEDs")
+        except Exception as e:
+            print(f"NeoPixel init failed: {e}")
+            strip = None
+    else:
+        # Simple simulation stub
+        class DummyStrip:
+            def __init__(self, n):
+                self._n = n
+                self._data = [(0, 0, 0)] * n
+                self._brightness = LED_BRIGHTNESS
+            def numPixels(self): return self._n
+            def setPixelColor(self, i, c): 
+                self._data[i] = c
+                print(f"Sim LED {i} -> {c}")
+            def show(self): print(f"Sim LEDs: {self._data}")
+            def setBrightness(self, b): self._brightness = b
+        strip = DummyStrip(LED_COUNT)
+        lights_on = False
+        _strip_fill(Color(0, 0, 0))
+        print("Using simulated NeoPixel strip")
+
+def set_lights(state: bool):
+    global lights_on
+    with _lights_lock:
+        lights_on = bool(state)
+        if lights_on:
+            # Warm white-ish
+            _strip_fill(Color(255, 200, 120))
+        else:
+            _strip_fill(Color(0, 0, 0))
 
 # Detect platform and initialize GPIO library accordingly
 def detect_platform():
@@ -249,6 +331,10 @@ else:
         # Start PWM with 0% duty cycle
         pwm_a.start(0)
         pwm_b.start(0)
+
+
+# Initialize lights after GPIO/motor setup
+init_lights()
 
 # Wrapper functions to handle platform differences
 def gpio_output(pin, value):
@@ -596,11 +682,29 @@ def get_status():
         'message': f'Robot control server is running on {platform_name}'
     })
 
+
+@app.route('/lights', methods=['GET', 'POST'])
+def lights_route():
+    """Get or set light state for 4 NeoPixels on GPIO 12"""
+    try:
+        if request.method == 'GET':
+            return jsonify({ 'status': 'success', 'on': bool(lights_on) })
+        # POST
+        data = request.get_json(silent=True) or {}
+        desired = bool(data.get('on', False))
+        set_lights(desired)
+        return jsonify({ 'status': 'success', 'on': bool(lights_on) })
+    except Exception as e:
+        print(f"/lights error: {e}")
+        return jsonify({ 'status': 'error', 'message': str(e) }), 500
+
+
 if __name__ == '__main__':
     try:
         print(f"Starting GPIO server on platform: {platform_name}")
         app.run(host='0.0.0.0', port=8080, threaded=True)
     finally:
+         
         # Clean up based on platform
         if platform_name == "raspberry_pi" or platform_name == "simulation":
             if hasattr(pwm_a, 'stop'):
@@ -617,6 +721,11 @@ if __name__ == '__main__':
         #     pwm_a.stop()
         #     pwm_b.stop()
             
+        try:
+            set_lights(False)
+        except Exception:
+            pass
+        
         # Release cameras
         for camera_id in cameras:
             cameras[camera_id].release()

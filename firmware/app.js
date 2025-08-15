@@ -18,6 +18,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const cameraSelectDialog = document.getElementById('camera-select-dialog');
     const refreshCamerasBtnDialog = document.getElementById('refresh-cameras-dialog');
     const saveSettingsDialogBtn = document.getElementById('save-settings');
+    // Lights toggle
+    const lightsToggleBtn = document.getElementById('lights-toggle');
+
 
     // Add connection/control container elements
     const controlContainer = document.getElementById('control-container') || document.querySelector('.control-container');
@@ -33,6 +36,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let serverCheckInterval = null;
     let isServerConnected = false;
     let connectionState = 'disconnected'; // 'disconnected', 'server_connected', 'camera_connected'
+    let lightsOn = false;
 
     // Load settings from localStorage
     const settings = {
@@ -59,6 +63,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Show connection panel, hide controls
                 if (connectionContainer) connectionContainer.style.display = 'flex';
                 if (controlContainer) controlContainer.style.display = 'none';
+                if (lightsToggleBtn) lightsToggleBtn.disabled = true;
+
                 break;
 
             case 'server_connected':
@@ -66,9 +72,70 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Hide connection panel, show controls
                 if (connectionContainer) connectionContainer.style.display = 'none';
                 if (controlContainer) controlContainer.style.display = 'block';
+                if (lightsToggleBtn) lightsToggleBtn.disabled = false;
+
                 break;
         }
     }
+
+    // --- Lights helpers ---
+    function updateLightsButtonUI() {
+        if (!lightsToggleBtn) return;
+        lightsToggleBtn.classList.toggle('on', lightsOn);
+        lightsToggleBtn.classList.toggle('off', !lightsOn);
+        lightsToggleBtn.textContent = lightsOn ? '💡 Lights On' : '🔦 Lights Off';
+        lightsToggleBtn.setAttribute('aria-pressed', String(lightsOn));
+    }
+
+    function fetchLightsStatus() {
+        if (!lightsToggleBtn || !isServerConnected) {
+            lightsOn = false;
+            updateLightsButtonUI();
+            return;
+        }
+        fetch(`http://${settings.gpioAddress}/lights`, {
+            method: 'GET',
+            headers: { 'Accept': 'application/json' },
+            signal: AbortSignal.timeout(5000)
+        })
+            .then(r => r.ok ? r.json() : Promise.reject(new Error('Lights status fetch failed')))
+            .then(d => {
+                // Accept any of these shapes: {on: bool} | {state: bool} | {value: 0/1}
+                lightsOn = Boolean(d?.on ?? d?.state ?? d?.value);
+                updateLightsButtonUI();
+            })
+            .catch(err => {
+                console.warn('Lights status error:', err);
+                lightsOn = false;
+                updateLightsButtonUI();
+            });
+    }
+
+    function setLights(on) {
+        if (!isServerConnected) return;
+        // Optimistic UI update
+        const prev = lightsOn;
+        lightsOn = on;
+        updateLightsButtonUI();
+
+        fetch(`http://${settings.gpioAddress}/lights`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+            body: JSON.stringify({ on }),
+            signal: AbortSignal.timeout(5000)
+        })
+            .then(r => { if (!r.ok) throw new Error('Failed to set lights'); return r.json().catch(() => ({})); })
+            .then(() => {
+                // Keep state as set
+            })
+            .catch(err => {
+                console.error('Lights control error:', err);
+                // Revert UI on failure
+                lightsOn = prev;
+                updateLightsButtonUI();
+            });
+    }
+    // --- end Lights helpers ---
 
     // Initialize camera options
     function initCameraOptions() {
@@ -118,6 +185,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Fetch available cameras
                 fetchAvailableCameras();
 
+                // Fetch current lights state
+                fetchLightsStatus();
+
                 // Set up periodic server check
                 serverCheckInterval = setInterval(() => {
                     // Use a simple ping check that doesn't update the UI
@@ -157,6 +227,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 // Clear camera options and add default options as fallback
                 populateFallbackCameraOptions();
+
+                lightsOn = false;
+                updateLightsButtonUI();
 
                 // Try again in 5 seconds
                 serverCheckInterval = setInterval(checkServerConnection, 5000);
@@ -656,6 +729,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 orientationWarning.style.display = 'none';
             }
         }
+    }
+
+    // Lights toggle event
+    if (lightsToggleBtn) {
+        lightsToggleBtn.addEventListener('click', () => {
+            setLights(!lightsOn);
+        });
+        // Initialize button UI
+        updateLightsButtonUI();
+        // Disabled until server connects
+        lightsToggleBtn.disabled = true;
     }
 
     // Initial orientation check
