@@ -101,7 +101,7 @@ document.addEventListener('DOMContentLoaded', () => {
             method: 'GET',
             headers: { 'Accept': 'application/json' },
             // Short timeout to avoid long waits
-            signal: AbortSignal.timeout(5000)
+            signal: AbortSignal.timeout(10000)
         })
             .then(response => {
                 if (response.ok) {
@@ -124,7 +124,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     fetch(`http://${settings.gpioAddress}/status`, {
                         method: 'GET',
                         headers: { 'Accept': 'application/json' },
-                        signal: AbortSignal.timeout(3000)
+                        signal: AbortSignal.timeout(10000)
                     })
                         .then(response => response.ok ? response.json() : Promise.reject())
                         .then(() => {
@@ -168,7 +168,7 @@ document.addEventListener('DOMContentLoaded', () => {
         fetch(`http://${settings.gpioAddress}/cameras`, {
             method: 'GET',
             headers: { 'Accept': 'application/json' },
-            signal: AbortSignal.timeout(5000)
+            signal: AbortSignal.timeout(10000)
         })
             .then(response => {
                 if (response.ok) {
@@ -362,7 +362,7 @@ document.addEventListener('DOMContentLoaded', () => {
             fetch(`http://${settings.gpioAddress}/camera/${settings.cameraId}`, {
                 method: 'GET',
                 headers: { 'Accept': 'application/json' },
-                signal: AbortSignal.timeout(3000)
+                signal: AbortSignal.timeout(10000)
             })
                 .then(response => {
                     if (!response.ok) throw new Error('Camera status check failed');
@@ -554,7 +554,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 "leftRight": ${rightJoystickValue}
             }`,
             // Short timeout to avoid blocking UI
-            signal: AbortSignal.timeout(1000)
+            signal: AbortSignal.timeout(3000)
         }).catch(error => {
             console.error('Error sending control values:', error);
             // If we get a connection error, check server connection
