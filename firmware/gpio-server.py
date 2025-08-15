@@ -9,9 +9,9 @@ from flask_cors import CORS
 
 # NeoPixel (WS281x) support
 try:
-    from rpi_ws281x import Adafruit_NeoPixel, Color  # Hardware control on Raspberry Pi
+    from rpi_ws281x import PixelStrip, Color  # Hardware control on Raspberry Pi
 except Exception:
-    Adafruit_NeoPixel = None
+    PixelStrip = None
     def Color(r, g, b):
         return (r, g, b)  # Fallback tuple for simulation
 
@@ -287,7 +287,7 @@ def _strip_fill(color):
     if not strip:
         return
     try:
-        # Adafruit_NeoPixel API
+        # PixelStrip API
         n = strip.numPixels() if hasattr(strip, 'numPixels') else LED_COUNT
         for i in range(n):
             strip.setPixelColor(i, color)
@@ -297,9 +297,9 @@ def _strip_fill(color):
 
 def init_lights():
     global strip, lights_on
-    if platform_name == "raspberry_pi" and Adafruit_NeoPixel is not None:
+    if platform_name == "raspberry_pi" and PixelStrip is not None:
         try:
-            strip = Adafruit_NeoPixel(LED_COUNT, LED_PIN, LED_FREQ_HZ, LED_DMA, LED_INVERT, LED_BRIGHTNESS, LED_CHANNEL)
+            strip = PixelStrip(LED_COUNT, LED_PIN, LED_FREQ_HZ, LED_DMA, LED_INVERT, LED_BRIGHTNESS, LED_CHANNEL)
             strip.begin()
             lights_on = False
             _strip_fill(Color(0, 0, 0))
@@ -326,7 +326,7 @@ def init_lights():
 
         if (platform_name != "raspberry_pi"):
             print("Using simulated NeoPixel strip because you are not on a Raspberry Pi")
-        elif Adafruit_NeoPixel is None:
+        elif PixelStrip is None:
             print("Using simulated NeoPixel strip because NeoPixel library not available")
 
 def set_lights(state: bool):
