@@ -9,12 +9,10 @@ from flask_cors import CORS
 
 # NeoPixel (WS281x) support
 try:
-    from rpi_ws281x import PixelStrip, Color  # Hardware control on Raspberry Pi
+    # Reference: from pi5neo import Pi5Neo
+    from pi5neo import Pi5Neo as Pi5NeoStrip  # pip install pi5neo
 except Exception:
-    PixelStrip = None
-    def Color(r, g, b):
-        return (r, g, b)  # Fallback tuple for simulation
-
+    Pi5NeoStrip = None
 
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
@@ -63,6 +61,10 @@ LED_DMA = 10
 LED_BRIGHTNESS = 64   # 0-255
 LED_INVERT = False
 LED_CHANNEL = 0       # PWM0 channel for GPIO 12
+
+# Pi5Neo uses SPI; choose the SPI device and speed (kHz)
+NEO_SPI_DEV = '/dev/spidev0.0'
+NEO_SPI_SPEED_KHZ = 800
 
 
 # Detect platform and initialize GPIO library accordingly
@@ -276,58 +278,86 @@ strip = None
 lights_on = False
 _lights_lock = threading.Lock()
 
+class DummyStrip:
+    def __init__(self, n, brightness=1.0):
+        self._n = n
+        self._data = [(0, 0, 0)] * n
+        self._brightness = brightness
+    def numPixels(self): return self._n
+    def fill(self, rgb):
+        self._data = [rgb] * self._n
+    def set_pixel(self, i, rgb):
+        self._data[i] = rgb
+        print(f"Sim LED {i} -> {rgb}")
+    def show(self):
+        print(f"Sim LEDs: {self._data}")
+    def set_brightness(self, b):
+        self._brightness = b
+
+def _apply_brightness(rgb):
+    scale = max(0.0, min(1.0, LED_BRIGHTNESS / 255.0))
+    r, g, b = rgb
+    return (int(r * scale), int(g * scale), int(b * scale))
+
 def _strip_show():
     try:
-        if strip:
+        if strip is None:
+            return
+        # Pi5Neo uses update_strip(); simulation uses show()
+        if hasattr(strip, 'update_strip'):
+            strip.update_strip()
+        elif hasattr(strip, 'show'):
             strip.show()
+        elif hasattr(strip, 'write'):
+            strip.write()
     except Exception as e:
         print(f"NeoPixel show error: {e}")
 
-def _strip_fill(color):
-    if not strip:
+def _strip_fill(rgb):
+    if strip is None:
         return
     try:
-        # PixelStrip API
-        n = strip.numPixels() if hasattr(strip, 'numPixels') else LED_COUNT
-        for i in range(n):
-            strip.setPixelColor(i, color)
+        r, g, b = _apply_brightness(rgb)
+        if hasattr(strip, 'fill_strip'):
+            # Pi5Neo API
+            strip.fill_strip(r, g, b)
+        elif hasattr(strip, 'fill'):
+            strip.fill((r, g, b))
+        else:
+            n = strip.numPixels() if hasattr(strip, 'numPixels') else LED_COUNT
+            for i in range(n):
+                if hasattr(strip, 'set_led_color'):
+                    strip.set_led_color(i, r, g, b)
+                elif hasattr(strip, 'set_pixel'):
+                    strip.set_pixel(i, (r, g, b))
+                elif hasattr(strip, 'setPixelColor'):
+                    strip.setPixelColor(i, (r, g, b))
         _strip_show()
     except Exception as e:
         print(f"NeoPixel fill error: {e}")
 
 def init_lights():
     global strip, lights_on
-    if platform_name == "raspberry_pi" and PixelStrip is not None:
+    # Prefer Pi5Neo on Raspberry Pi
+    if platform_name == "raspberry_pi" and Pi5NeoStrip is not None:
         try:
-            strip = PixelStrip(LED_COUNT, LED_PIN, LED_FREQ_HZ, LED_DMA, LED_INVERT, LED_BRIGHTNESS)
-            strip.begin()
+            # Reference: Pi5Neo('/dev/spidev0.0', led_count, speed_khz)
+            strip = Pi5NeoStrip(NEO_SPI_DEV, LED_COUNT, NEO_SPI_SPEED_KHZ)
             lights_on = False
-            _strip_fill(Color(0, 0, 0))
-            print(f"NeoPixel strip initialized on GPIO {LED_PIN} with {LED_COUNT} LEDs")
+            _strip_fill((0, 0, 0))
+            print(f"Pi5Neo initialized on {NEO_SPI_DEV} with {LED_COUNT} LEDs @ {NEO_SPI_SPEED_KHZ}kHz")
+            return
         except Exception as e:
-            print(f"NeoPixel init failed: {e}")
-            strip = None
-    else:
-        # Simple simulation stub
-        class DummyStrip:
-            def __init__(self, n):
-                self._n = n
-                self._data = [(0, 0, 0)] * n
-                self._brightness = LED_BRIGHTNESS
-            def numPixels(self): return self._n
-            def setPixelColor(self, i, c): 
-                self._data[i] = c
-                print(f"Sim LED {i} -> {c}")
-            def show(self): print(f"Sim LEDs: {self._data}")
-            def setBrightness(self, b): self._brightness = b
-        strip = DummyStrip(LED_COUNT)
-        lights_on = False
-        _strip_fill(Color(0, 0, 0))
+            print(f"Pi5Neo init failed, falling back to simulation: {e}")
 
-        if (platform_name != "raspberry_pi"):
-            print("Using simulated NeoPixel strip because you are not on a Raspberry Pi")
-        elif PixelStrip is None:
-            print("Using simulated NeoPixel strip because NeoPixel library not available")
+    # Simulation fallback (or non-RPi platforms)
+    strip = DummyStrip(LED_COUNT, brightness=LED_BRIGHTNESS / 255.0)
+    lights_on = False
+    _strip_fill((0, 0, 0))
+    if platform_name != "raspberry_pi":
+        print("Using simulated NeoPixel strip (not Raspberry Pi)")
+    elif Pi5NeoStrip is None:
+        print("Using simulated NeoPixel strip (Pi5Neo not available)")
 
 def set_lights(state: bool):
     global lights_on
@@ -335,9 +365,9 @@ def set_lights(state: bool):
         lights_on = bool(state)
         if lights_on:
             # Warm white-ish
-            _strip_fill(Color(255, 200, 120))
+            _strip_fill((255, 200, 120))
         else:
-            _strip_fill(Color(0, 0, 0))
+            _strip_fill((0, 0, 0))
 
 # Initialize lights after GPIO/motor setup
 init_lights()

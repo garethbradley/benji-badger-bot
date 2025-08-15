@@ -57,6 +57,17 @@ cd ./firmware
 python -m http.server
 ```
 
+### Enabling SPI
+
+SPI is required for the NeoPixels to work:
+
+```shell
+sudo raspi-config
+```
+
+Go to Interface Options
+I4 SPI -> Yes
+
 ### Automating the Services
 
 Assuming that's all running, we need to set the services to auto start.
