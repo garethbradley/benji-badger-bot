@@ -64,68 +64,6 @@ LED_BRIGHTNESS = 64   # 0-255
 LED_INVERT = False
 LED_CHANNEL = 0       # PWM0 channel for GPIO 12
 
-strip = None
-lights_on = False
-_lights_lock = threading.Lock()
-
-def _strip_show():
-    try:
-        if strip:
-            strip.show()
-    except Exception as e:
-        print(f"NeoPixel show error: {e}")
-
-def _strip_fill(color):
-    if not strip:
-        return
-    try:
-        # PixelStrip API
-        n = strip.numPixels() if hasattr(strip, 'numPixels') else LED_COUNT
-        for i in range(n):
-            strip.setPixelColor(i, color)
-        _strip_show()
-    except Exception as e:
-        print(f"NeoPixel fill error: {e}")
-
-def init_lights():
-    global strip, lights_on
-    if platform_name == "raspberry_pi" and PixelStrip is not None:
-        try:
-            strip = PixelStrip(LED_COUNT, LED_PIN, LED_FREQ_HZ, LED_DMA, LED_INVERT, LED_BRIGHTNESS, LED_CHANNEL)
-            strip.begin()
-            lights_on = False
-            _strip_fill(Color(0, 0, 0))
-            print(f"NeoPixel strip initialized on GPIO {LED_PIN} with {LED_COUNT} LEDs")
-        except Exception as e:
-            print(f"NeoPixel init failed: {e}")
-            strip = None
-    else:
-        # Simple simulation stub
-        class DummyStrip:
-            def __init__(self, n):
-                self._n = n
-                self._data = [(0, 0, 0)] * n
-                self._brightness = LED_BRIGHTNESS
-            def numPixels(self): return self._n
-            def setPixelColor(self, i, c): 
-                self._data[i] = c
-                print(f"Sim LED {i} -> {c}")
-            def show(self): print(f"Sim LEDs: {self._data}")
-            def setBrightness(self, b): self._brightness = b
-        strip = DummyStrip(LED_COUNT)
-        lights_on = False
-        _strip_fill(Color(0, 0, 0))
-        print("Using simulated NeoPixel strip")
-
-def set_lights(state: bool):
-    global lights_on
-    with _lights_lock:
-        lights_on = bool(state)
-        if lights_on:
-            # Warm white-ish
-            _strip_fill(Color(255, 200, 120))
-        else:
-            _strip_fill(Color(0, 0, 0))
 
 # Detect platform and initialize GPIO library accordingly
 def detect_platform():
@@ -332,6 +270,70 @@ else:
         pwm_a.start(0)
         pwm_b.start(0)
 
+
+
+strip = None
+lights_on = False
+_lights_lock = threading.Lock()
+
+def _strip_show():
+    try:
+        if strip:
+            strip.show()
+    except Exception as e:
+        print(f"NeoPixel show error: {e}")
+
+def _strip_fill(color):
+    if not strip:
+        return
+    try:
+        # PixelStrip API
+        n = strip.numPixels() if hasattr(strip, 'numPixels') else LED_COUNT
+        for i in range(n):
+            strip.setPixelColor(i, color)
+        _strip_show()
+    except Exception as e:
+        print(f"NeoPixel fill error: {e}")
+
+def init_lights():
+    global strip, lights_on
+    if platform_name == "raspberry_pi" and PixelStrip is not None:
+        try:
+            strip = PixelStrip(LED_COUNT, LED_PIN, LED_FREQ_HZ, LED_DMA, LED_INVERT, LED_BRIGHTNESS, LED_CHANNEL)
+            strip.begin()
+            lights_on = False
+            _strip_fill(Color(0, 0, 0))
+            print(f"NeoPixel strip initialized on GPIO {LED_PIN} with {LED_COUNT} LEDs")
+        except Exception as e:
+            print(f"NeoPixel init failed: {e}")
+            strip = None
+    else:
+        # Simple simulation stub
+        class DummyStrip:
+            def __init__(self, n):
+                self._n = n
+                self._data = [(0, 0, 0)] * n
+                self._brightness = LED_BRIGHTNESS
+            def numPixels(self): return self._n
+            def setPixelColor(self, i, c): 
+                self._data[i] = c
+                print(f"Sim LED {i} -> {c}")
+            def show(self): print(f"Sim LEDs: {self._data}")
+            def setBrightness(self, b): self._brightness = b
+        strip = DummyStrip(LED_COUNT)
+        lights_on = False
+        _strip_fill(Color(0, 0, 0))
+        print("Using simulated NeoPixel strip")
+
+def set_lights(state: bool):
+    global lights_on
+    with _lights_lock:
+        lights_on = bool(state)
+        if lights_on:
+            # Warm white-ish
+            _strip_fill(Color(255, 200, 120))
+        else:
+            _strip_fill(Color(0, 0, 0))
 
 # Initialize lights after GPIO/motor setup
 init_lights()
