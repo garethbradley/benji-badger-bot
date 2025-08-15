@@ -323,7 +323,11 @@ def init_lights():
         strip = DummyStrip(LED_COUNT)
         lights_on = False
         _strip_fill(Color(0, 0, 0))
-        print("Using simulated NeoPixel strip")
+
+        if (platform_name != "raspberry_pi"):
+            print("Using simulated NeoPixel strip because you are not on a Raspberry Pi")
+        elif PixelStrip is None:
+            print("Using simulated NeoPixel strip because NeoPixel library not available")
 
 def set_lights(state: bool):
     global lights_on
