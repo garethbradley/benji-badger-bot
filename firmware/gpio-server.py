@@ -299,7 +299,7 @@ def init_lights():
     global strip, lights_on
     if platform_name == "raspberry_pi" and PixelStrip is not None:
         try:
-            strip = PixelStrip(LED_COUNT, LED_PIN, LED_FREQ_HZ, LED_DMA, LED_INVERT, LED_BRIGHTNESS, LED_CHANNEL)
+            strip = PixelStrip(LED_COUNT, LED_PIN, LED_FREQ_HZ, LED_DMA, LED_INVERT, LED_BRIGHTNESS)
             strip.begin()
             lights_on = False
             _strip_fill(Color(0, 0, 0))
