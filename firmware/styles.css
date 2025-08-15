@@ -419,7 +419,12 @@ html, body {
   }
 
   /* Lights toggle styles */
-  .lights-control { display: flex; justify-content: center; margin: 12px 0; }
+  .lights-control {
+    display: flex;
+    justify-content: center;
+    margin: 12px 0;
+
+  }
   .lights-btn {
       appearance: none; border: none; border-radius: 999px; padding: 10px 16px;
       font-size: 16px; cursor: pointer; transition: background-color .2s, color .2s, opacity .2s;
